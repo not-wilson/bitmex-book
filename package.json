@@ -1,0 +1,25 @@
+{
+  "name": "bitmex-book",
+  "version": "1.0.0",
+  "description": "Small object to handle BitMEX socket API data.",
+  "main": "src/BitmexBook.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/not-wilson/bitmex-book.git"
+  },
+  "keywords": [
+    "bitmex",
+    "api",
+    "storer",
+    "parser"
+  ],
+  "author": "notwilson",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/not-wilson/bitmex-book/issues"
+  },
+  "homepage": "https://github.com/not-wilson/bitmex-book#readme"
+}
