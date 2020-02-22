@@ -1,7 +1,7 @@
 {
   "name": "bitmex-book",
   "version": "1.0.0",
-  "description": "Small object to handle BitMEX socket API data.",
+  "description": "Process and store raw BitMEX API socket data.",
   "main": "src/BitmexBook.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -13,8 +13,7 @@
   "keywords": [
     "bitmex",
     "api",
-    "storer",
-    "parser"
+    "handler"
   ],
   "author": "notwilson",
   "license": "MIT",
