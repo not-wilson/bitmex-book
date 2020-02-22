@@ -86,7 +86,10 @@ class BitmexBook {
             if(index >= 0) Object.keys(data).forEach(key => {
                 if(reply.table === "order" && data.leavesQty <= 0) book[reply.table].splice(index, 1)   // Remove cancelled/empty orders.
                 else if(book[reply.table][index]) book[reply.table][index][key] = data[key]             // Update the data row.
-                else book[reply.table].push(data)                                                       // Data doesn't exist, add it.
+                else {
+                    data._sid = reply.stream // Data didn't go in via insert(), attach stream ID to it.
+                    book[reply.table].push(data)                                                       // Data doesn't exist, add it.
+                }
             })
 
             else {} // thorw new Error("Don' fucked up.")
