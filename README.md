@@ -52,7 +52,7 @@ If you like my work, please let me know:
 notwilson@protonmail.com
 Find me in the BitMEX trollbox as notwilson
 
-A jesture of notice or a token of appreciation:
+A jesture of notice or a token of appreciation:  
 ETH: 0xd9979f482da58b4432d0f52eb456f7dd1f4897e6  
 BTC: 1HzR3Vyu231E8SsGLUbNYSb92bn6MGLEaV  
 LTC: LTBHggmnrMACoB3JAH8rMy9r8hGxum7ZSw  
