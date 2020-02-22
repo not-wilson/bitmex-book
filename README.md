@@ -48,8 +48,8 @@ const trades10 = book.fetch('trades', 10)
 const xbtusdTrades10 = book.fetch('trades', 10, item => item.symbol === "XBTUSD")
 ```
 
-If you like my work, please let me know:
-notwilson@protonmail.com
+If you like my work, please let me know:  
+notwilson@protonmail.com  
 Find me in the BitMEX trollbox as notwilson
 
 A jesture of notice or a token of appreciation:  
