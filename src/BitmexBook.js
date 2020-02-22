@@ -32,7 +32,7 @@ class BitmexBook {
         const vars = Object.keys(options)
 
         // Default length of tables that will require trimming.
-        if(!vars['trim']) options.trim = { quote: 10000, chat: 1000, trade: 1000000 }
+        if(!vars.includes('trim')) options.trim = { quote: 10000, chat: 1000, trade: 1000000 }
 
         // Bind options.
         this.options = options
