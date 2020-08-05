@@ -1,6 +1,6 @@
 {
   "name": "bitmex-book",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "description": "Process and store raw BitMEX API socket data.",
   "main": "src/BitmexBook.js",
   "scripts": {
@@ -20,5 +20,9 @@
   "bugs": {
     "url": "https://github.com/not-wilson/bitmex-book/issues"
   },
-  "homepage": "https://github.com/not-wilson/bitmex-book#readme"
+  "homepage": "https://github.com/not-wilson/bitmex-book#readme",
+  "dependencies": {
+    "bitmex-socket": "^2.0.2"
+  },
+  "devDependencies": {}
 }

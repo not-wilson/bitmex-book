@@ -1,132 +1,127 @@
-// Keep private to prevent accidental corruption of data.
-const books = {}
-const keys  = {}
+// Object Symbols.
+const s = { tables: Symbol('tables'), keys: Symbol('keys'), socket: Symbol('stream'), opts: Symbol('opts') }
 
-// Find the index of a specific piece of data in the book.
-const findTableIndex = (id, table, data) => {
-    const book = books[id]
+// Book to handle BitMEX events so I can just search for data.
+class BitmexBook {
+    constructor(stream, opts = {}) {
+        // Get the config options.
+        const vars = Object.keys(opts)
+        
+        // Set a default value for each trim option if it's not included.
+        if(!vars.includes('trim')) opts.trim = { quote: 1000, chat: 1000, trade: 1000000 }
+        else {
+            if(!opts.trim.quote)   opts.trim.quote = 1000
+            if(!opts.trim.chat)    opts.trim.chat = 1000
+            if(!opts.trim.trade)   opts.trim.trade = 1000000
+        }
 
-    // Find the index to update. Pass 0 back if the table has no keys to look for.
-    return !keys[table] ? 0 : book[table].findIndex(item => {
+        // Bind the socket & options.
+        this[s.stream]  = stream
+        this[s.opts]    = opts
 
-        // Check data against keys for this table.
-        for(let i = 0; i < keys[table].length; i++) {
-            const key = keys[table][i]
+        // Bind tables and keys.
+        this[s.tables]  = {}
+        this[s.keys]    = {}
+        
+        // Bind the socket events to update the object.
+        stream.on('partial',    (table, data, row) => partial(this, table, data, row))
+        stream.on('insert',     (table, data) => insert(this, table, data))
+        stream.on('update',     (table, data) => update(this, table, data))
+        stream.on('delete',     (table, data) => deletee(this, table, data))
+        
+        // Remove table data on unsubscribe event.
+        stream.on('unsubscribe', table => remove_table(this, table))
+    }
+
+    // Object getters.
+    get config() { return this[s.opts] }
+
+    // Get data from the book.
+    fetch(rows = 0, table, filter) {
+        const target    = !filter ? this[s.tables][table] : this[s.tables][table].filter(filter)
+        const size      = (target.length - rows - 1) < 0 ? 0 : target.length - rows - 1
+        return (rows === 1) ? target[0] : target.slice(!rows ? 0 : size)
+    }
+}
+
+// Export the object.
+module.exports = BitmexBook
+
+// Add a new table into the book.
+function partial(book, table, data = [], reply) {
+    // Create the table if it doesn't exist.
+    if(!book[s.tables][table]) book[s.tables][table] = []
+
+    // Add the table keys to the keys store.
+    if(!book[s.keys][table]) book[s.keys][table] = reply.keys || []
+
+    // Insert data into the book.
+    if(data && data.length) insert(book, table, data)
+}
+
+// Insert data into the book.
+function insert(book, table, data = []) {
+    // Loop through all data objects.
+    for(let i = 0; i < data.length; i++) {
+        // Add data-row to
+        book[s.tables][table].push(data[i])
+
+        // Ensure sizing is maintained.
+        const trim = base_table_name(table) // trade or quote
+        if(book.config.trim[trim] && (book[s.tables][table].length > book.config.trim[trim])) book[s.tables][table].shift()
+    }
+}
+
+// Update a table in the book.
+function update(book, table, data = []) {
+    for(let i = 0; i < data.length; i++) {
+        const item = data[i]
+        const index = find(book, table, item)
+
+        // Connected table doesn't send an insert, only updates.
+        if(index < 0) insert(book, table, [item])
+
+        // Update a row in the book.
+        else {
+            // Remove empty orders from the book.
+            if(item.leavesQty <= 0) deletee(book, table, [item])
+
+            // Now that's some nested shit.
+            else if(book[s.tables][table][index]) Object.keys(data).forEach(key => book[s.tables][table][index][key] = data[key])
+        }
+    }
+}
+
+// Delete table data from the book.
+function deletee(book, table, data = []) {
+    for(let i = 0; i < data.length; i++) {
+        // Find the index for the data.
+        const index = find(book, table, data[i])
+
+        // Remove data from the table.
+        if(index) book[s.tables][table].splice(index, 1)
+    }
+}
+
+// Remove a table from the book.
+function remove_table(book, table) { delete book[s.tables][table] }
+
+// Find a piece of data within the book.
+function find(book, table, data) {
+    return !book[s.keys][table] ? 0 : book[s.tables][table].findIndex(item => {
+        // Check the keys match.
+        for(let i = 0; i < book[s.keys][table].length; i++) {
+            const key = book[s.keys][table][i]
             if(item[key] !== data[key]) return false
         }
 
-        // Return whether the result passed or not.
+        // Data is a match.
         return true
     })
 }
 
-// Convert tradeBin1d into trade etc.
-const getBaseTable = table => {
+// Convert tradeBin1d into trade etc. Only matters for trade* and quote*
+function base_table_name(table) {
     for(let i = 0; i < table.length; i++) if(table.charCodeAt(i) < 97 || table.charCodeAt(i) > 122) return table.substring(0, i)
     return table
 }
-
-class BitmexBook {
-    constructor(options = {}) {
-        // Build the options menu.
-        const vars = Object.keys(options)
-
-        // Default length of tables that will require trimming.
-        if(!vars.includes('trim')) options.trim = { quote: 10000, chat: 1000, trade: 1000000 }
-
-        // Bind options.
-        this.options = options
-        
-        // Generate a random ID for data storage in globals to prevent multiple books from corrupting each-other.
-        this.id = Math.random().toString(36).substring(2)
-        
-        // Add this book to the global books object.
-        books[this.id] = {}
-    }
-
-    // ***************** Handle BitMEX API Messages ***************** //
-    partial(reply) {
-        const book = books[this.id]
-
-        // Store keys.
-        if(!keys[reply.table]) keys[reply.table] = reply.keys
-
-        // Add the table and data to the book.
-        if(!book[reply.table]) book[reply.table] = []
-
-        // If there's data to add, insert it.
-        if(reply.data && reply.data.length) this.insert(reply)
-    }
-
-    insert(reply) {
-        const book = books[this.id]
-
-        if(book[reply.table]) {
-            for(let i = 0; i < reply.data.length; i++) {
-                // Bind stream id to data.
-                reply.data[i]._sid = reply.stream   // Reply.stream is added via bitmex-socket, does not exist on the BitMEX API at this level. Does one level up.
-
-                // Add data to the book.
-                book[reply.table].push(reply.data[i])
-
-                // Remove first element every iteration the length is over max size.
-                const btable = getBaseTable(reply.table) // tradeBin1 into trade etc.
-                if(this.options.trim[btable] && (book[reply.table].length > this.options.trim[btable])) book[reply.table].shift()
-            }
-        }
-    }
-
-    update(reply) {
-        const book = books[this.id]
-
-        for(let i = 0; i < reply.data.length; i++) {
-            const data  = reply.data[i]
-            const index = findTableIndex(this.id, reply.table, data)
-
-            if(index >= 0) Object.keys(data).forEach(key => {
-                if(reply.table === "order" && data.leavesQty <= 0) book[reply.table].splice(index, 1)   // Remove cancelled/empty orders.
-                else if(book[reply.table][index]) book[reply.table][index][key] = data[key]             // Update the data row.
-                else {
-                    data._sid = reply.stream // Data didn't go in via insert(), attach stream ID to it.
-                    book[reply.table].push(data)                                                       // Data doesn't exist, add it.
-                }
-            })
-
-            else {} // thorw new Error("Don' fucked up.")
-        }
-    }
-
-    delete(reply) {
-        const book = books[this.id]
-        for(let i = 0; i < reply.data.length; i++) {
-            const index = findTableIndex(this.id, reply.table, reply.data[i])
-            book[reply.table].splice(index, 1)
-        }
-    }
-
-    // ***************** Make it Friendly ***************** //
-    // Get all data from the book.
-    all() { return { keys, book: books[this.id] } }
-
-    // Initiate a book with data from an already filled book.
-    initial(data) { 
-        books[this.id] = data.book
-        Object.keys(keys).forEach(key => keys[key] = data.keys[key])
-    }
-
-    // Fetch all or the last x data from the book via table.
-    fetch(table, rows = 0, filter = null) {
-        const book      = books[this.id]
-        const target    = !filter ? book[table] : book[table].filter(filter)
-        const size      = (target.length - rows - 1) < 0 ? 0 : target.length - rows - 1
-        return target.slice(!rows ? 0 : size)
-    }
-
-    // Clear data from a book based on a stream ID (set in insert - stream id provided by @notwilson/bitmex-socket library).
-    flush(sid) {
-        const book = books[this.id]
-        Object.keys(book).forEach(key => book[key] = book[key].filter(item => { for(let i = 0; i < item.length; i++) return item[i]._sid !== sid } ))
-    }
-}
-
-module.exports = BitmexBook
