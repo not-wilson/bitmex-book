@@ -1,5 +1,5 @@
 // Object Symbols.
-const s = { tables: Symbol('tables'), keys: Symbol('keys'), socket: Symbol('stream'), opts: Symbol('opts') }
+const s = { tables: Symbol('tables'), keys: Symbol('keys'), stream: Symbol('stream'), opts: Symbol('opts') }
 
 // Book to handle BitMEX events so I can just search for data.
 class BitmexBook {
@@ -34,7 +34,8 @@ class BitmexBook {
     }
 
     // Object getters.
-    get config() { return this[s.opts] }
+    get config()    { return this[s.opts] }
+    get stream()    { return this[s.stream] }
 
     // Get data from the book.
     fetch(rows = 0, table, filter) {

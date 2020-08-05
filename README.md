@@ -29,7 +29,9 @@ setTimeout(() => console.log(book.fetch(300, 'trade', filter => filter.symbol ==
 ```
 
 ## Changelog
-- 1.1.0
+- 2.0.1
+    - Added getter for Book.stream. `book.stream` can now be used to get the `BitmexStream` object created by the `BitmexSocket` object on `new_stream()`.
+- 2.0.0
     - Complete rewrite.
     - Added this changelog.
 
