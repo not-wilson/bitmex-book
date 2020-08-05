@@ -39,6 +39,9 @@ class BitmexBook {
 
     // Get data from the book.
     fetch(rows = 0, table, filter) {
+        // Check table exists before attempting to manipulate it.
+        if(!this[s.tables][table]) return []
+
         const target    = !filter ? this[s.tables][table] : this[s.tables][table].filter(filter)
         const size      = (target.length - rows - 1) < 1 ? 0 : target.length - rows - 1
         return target.slice(!rows ? 0 : size)

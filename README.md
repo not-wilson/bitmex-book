@@ -29,6 +29,8 @@ setTimeout(() => console.log(book.fetch(300, 'trade', filter => filter.symbol ==
 ```
 
 ## Changelog
+- 2.1.1
+    - Bug Fix: fetch() now checks the table exists before attempting to filter it.
 - 2.1.0
     - Bug Fix: updates() were reading from the data array object, not the item within the array.
     - Book.fetch() now consistently returns an array.
