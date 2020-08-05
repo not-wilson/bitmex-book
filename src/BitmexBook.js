@@ -24,10 +24,10 @@ class BitmexBook {
         this[s.keys]    = {}
         
         // Bind the socket events to update the object.
-        stream.on('partial',    (table, data, row) => partial(this, table, data, row))
-        stream.on('insert',     (table, data) => insert(this, table, data))
-        stream.on('update',     (table, data) => update(this, table, data))
-        stream.on('delete',     (table, data) => deletee(this, table, data))
+        stream.on('partial',    (table, data, row)  => partial(this, table, data, row))
+        stream.on('insert',     (table, data)       => insert(this, table, data))
+        stream.on('update',     (table, data)       => update(this, table, data))
+        stream.on('delete',     (table, data)       => deletee(this, table, data))
         
         // Remove table data on unsubscribe event.
         stream.on('unsubscribe', table => remove_table(this, table))
@@ -40,8 +40,8 @@ class BitmexBook {
     // Get data from the book.
     fetch(rows = 0, table, filter) {
         const target    = !filter ? this[s.tables][table] : this[s.tables][table].filter(filter)
-        const size      = (target.length - rows - 1) < 0 ? 0 : target.length - rows - 1
-        return (rows === 1) ? target[0] : target.slice(!rows ? 0 : size)
+        const size      = (target.length - rows - 1) < 1 ? 0 : target.length - rows - 1
+        return target.slice(!rows ? 0 : size)
     }
 }
 
@@ -88,7 +88,7 @@ function update(book, table, data = []) {
             if(item.leavesQty <= 0) deletee(book, table, [item])
 
             // Now that's some nested shit.
-            else if(book[s.tables][table][index]) Object.keys(data).forEach(key => book[s.tables][table][index][key] = data[key])
+            else if(book[s.tables][table][index]) Object.keys(item).forEach(key => book[s.tables][table][index][key] = item[key])
         }
     }
 }

@@ -29,7 +29,9 @@ setTimeout(() => console.log(book.fetch(300, 'trade', filter => filter.symbol ==
 ```
 
 ## Changelog
-- 2.0.1
+- 2.1.0
+    - Bug Fix: updates() were reading from the data array object, not the item within the array.
+    - Book.fetch() now consistently returns an array.
     - Added getter for Book.stream. `book.stream` can now be used to get the `BitmexStream` object created by the `BitmexSocket` object on `new_stream()`.
 - 2.0.0
     - Complete rewrite.
