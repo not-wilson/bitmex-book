@@ -30,6 +30,7 @@ setTimeout(() => console.log(book.fetch(300, 'trade', filter => filter.symbol ==
 
 ## Changelog
 - 2.1.1
+    - Bug Fix: Unsubscribing from a channel won't drop the whole table. eg `unsubscribe('trade:XBTUSD')` no longer drops the full trade table.
     - Bug Fix: fetch() now checks the table exists before attempting to filter it.
 - 2.1.0
     - Bug Fix: updates() were reading from the data array object, not the item within the array.

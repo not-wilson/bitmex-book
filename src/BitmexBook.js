@@ -30,7 +30,14 @@ class BitmexBook {
         stream.on('delete',     (table, data)       => deletee(this, table, data))
         
         // Remove table data on unsubscribe event.
-        stream.on('unsubscribe', table => remove_table(this, table))
+        stream.on('unsubscribe', (table, symbol) => {
+            // Global table, drop it.
+            if(!symbol) return void remove_table(this, table)
+
+            // May be data not related to this specific symbol in the table.
+            const data = this.fetch(0, table, filter => { filter.symbol === symbol })
+            deletee(this, table, data)
+        })
     }
 
     // Object getters.
