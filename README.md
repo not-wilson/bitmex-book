@@ -1,34 +1,25 @@
 # bitmex-book
-Process and store BitMEX socket API data.
+Very simple little device to store and retrive bitmex websocket data.
 
-# Usage
-```javascript
+## Crypto related begging.
+If you like my work, please let me know:  
+notwilson@protonmail.com  
+Find me in the BitMEX trollbox as notwilson
 
-// Use this library with https://npmjs.org/package/bitmex-socket
-const BitmexSocket  = require('bitmex-socket')
-const BitmexBook    = require('bitmex-book')
-
-// Create a socket connection.
-const socket = new BitmexSocket
-
-// Create  stream with the socket.
-const stream = socket.new_stream()
-
-// Create a new book object with the stream.
-const book = new BitmexBook(stream)
-
-// Subscribe to data to populate the book.
-stream.subscribe('trade', 'liquidation', 'orderBookL2')
-
-// Wait 1 minute (let the list populate a little) then console log the last up to 300 trades.
-setTimeout(() => console.log(book.fetch(300, 'trade', filter => filter.symbol === "XBTUSD")), 60000)
-
-// If you unsubscribe from a table, the book will delete it's records.
-//stream.unsubscribe('orderBookL2') // All data will be lost.
-//stream.subscribe('orderBookL2') // Start receiving real-time data for this table again.
-```
+A jesture of notice or a token of appreciation:  
+- ETH: 0xd9979f482da58b4432d0f52eb456f7dd1f4897e6  
+- BTC: 1HzR3Vyu231E8SsGLUbNYSb92bn6MGLEaV  
+- LTC: LTBHggmnrMACoB3JAH8rMy9r8hGxum7ZSw  
+- XRP: rBgnUKAEiFhCRLPoYNPPe3JUWayRjP6Ayg (destination tag: 536785858)
 
 ## Changelog
+- 2.2.0
+    - Updated to work with bitmex-socket ^3.0.0
+    - Changed config settings, object now accepts a single object with the options `chat_size`, `trade_size` and `quote_size` to limit the size of these tables. `{ chat_size: 1000, quote_size: 1000, trade_size: 1000000 }` is the default setting.
+    - Now allows for multiple sockets. Add a socket on creation `new BitmexBook(socket, options)` or add them after creation `book.listen(socket1, socket2)`
+    - Bug Fix: Table trimming was a mess. Refactored it. Decidedly works now.
+    - Bug Fix: Empty orders weren't being cleared from the order table.
+    - Added DOCS.md 
 - 2.1.1
     - Bug Fix: Unsubscribing from a channel won't drop the whole table. eg `unsubscribe('trade:XBTUSD')` no longer drops the full trade table.
     - Bug Fix: fetch() now checks the table exists before attempting to filter it.
@@ -39,13 +30,3 @@ setTimeout(() => console.log(book.fetch(300, 'trade', filter => filter.symbol ==
 - 2.0.0
     - Complete rewrite.
     - Added this changelog.
-
-If you like my work, please let me know:  
-notwilson@protonmail.com  
-Find me in the BitMEX trollbox as notwilson
-
-A jesture of notice or a token of appreciation:  
-- ETH: 0xd9979f482da58b4432d0f52eb456f7dd1f4897e6  
-- BTC: 1HzR3Vyu231E8SsGLUbNYSb92bn6MGLEaV  
-- LTC: LTBHggmnrMACoB3JAH8rMy9r8hGxum7ZSw  
-- XRP: rBgnUKAEiFhCRLPoYNPPe3JUWayRjP6Ayg (destination tag: 536785858)
