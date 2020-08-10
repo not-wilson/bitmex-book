@@ -93,6 +93,12 @@ function check_opts(book, opts = {}) {
     // Limit the size of the quote table.
     if(!vars.includes('quote_size')) opts.quote_size = 1000
 
+    // Limit the size of the liquidation table.
+    if(!vars.includes('liquidation_size')) opts.liquidation_size = 10000
+
+    // Don't clear liquidations out of the liquidation table.
+    if(!vars.includes('keep_liquidations')) opts.keep_liquidations = false
+
     // Add the options to the object.
     book[s.opts] = opts
 }
@@ -131,6 +137,7 @@ function trim(book, table) {
      if(table.includes('trade')) trim = "trade"
      if(table.includes('quote')) trim = "quote"
      if(table.includes('chat'))  trim = "chat"
+     if(table.includes('liquidation')) trim = "liquidation"
 
      // Check if the table is larger than the wanted size.
      if(trim && book[s.tables][table].length > book.opt(`${trim}_size`)) book[s.tables][table].shift()
@@ -158,6 +165,10 @@ function update(book, table, data = [], reply, bitmex) {
 
 // Delete table data from the book.
 function deletee(book, table, data = [], reply, bitmex) {
+    // Keep the liquidations table from clearing data if wanted.
+    if(book.opt('keep_liquidations') && table === "liquidation") return 
+
+    // Loop and delete data.
     for(let i = 0; i < data.length; i++) {
         // Find the index for the data.
         const index = find(book, table, data[i])

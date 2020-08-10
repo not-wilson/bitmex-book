@@ -1,5 +1,5 @@
-# Object Breakdown
-## I really like my Symbol()s.
+## Object Breakdown
+I really like my Symbol()s.
 ```javascript
 book.opt(option)                    // Get the value of an option.
 book.fetch(rows, table, filter)     // Fetch data from the book. Filter is Array.filter() 
@@ -10,19 +10,20 @@ book.stop()                         // Stop listening on a socket / Drop all tha
 - Items retrived via `fetch()` will always be an array.
 - Options passed on creation are the options retrieved by `opt(s)`. Cannot be set after object creation (no explicit reason for this, just, doing this for free, you know?)
 
-# Options
-## There's like 3 and the defaults are fine.
+## Options
 ```javascript
 const opts = {
-    chat_size:  1000,       // Trim the chat table if subscribed at this many rows.
-    quote_size: 1000,       // ^
-    trade_size: 1000000     // ^^ <- I do a lot of work with averages.
+    chat_size:  1000,           // Trim the chat table if subscribed at this many rows.
+    quote_size: 1000,           // ^
+    trade_size: 1000000         // ^^ <- I do a lot of work with averages.
+    liquidation_size:   10000,  // How many rows to keep in the liquidations table if you opt to keep them.
+    keep_liquidations: false    // Don't run the DELETE event on the liquidations table so it can remain intact.
 }
 ```
 There's not a whole lot to the options of this object. orderBook tables are decidedly not trimmed because it's generally better to have all that kind of data in real time.
 
-# Working Example
-## Ok so it's not a *good* working example, but it *does* work.
+## Working Example
+Ok so it's not a *good* working example, but it *does* work.
 ```Javascript
 const BitmexSocket = require('../bitmex-socket')
 
