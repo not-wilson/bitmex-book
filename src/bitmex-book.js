@@ -122,6 +122,9 @@ function insert(book, table, data = [], reply, bitmex) {
         // Add socket ID to data for easier tracking.
         data[i]._sid = bitmex.id
 
+        // If we want to keep liquidation data on the books, add a timestamp field to save a fucking lot of headache.
+        if(table === "liquidation" && book.opt('keep_liquidations')) data[i].timestamp = new Date
+
         // Add data-row to
         book[s.tables][table].push(data[i])
 
@@ -145,11 +148,15 @@ function trim(book, table) {
 
 // Update a table in the book.
 function update(book, table, data = [], reply, bitmex) {
+    // We only want inserts if we're keeping the data.
+    if(book.opt('keep_liquidations') && table === "liquidation") return 
+
+    // Loop and update data.ff
     for(let i = 0; i < data.length; i++) {
         const item = data[i]
         const index = find(book, table, item)
 
-        // Connected table doesn't send data with its partial or an insert event. Only updates.
+        // Connected table doesn't send data with its partial or an insert event. Only updates for some reason..
         if(index < 0) insert(book, table, [item])
 
         // Update a row in the book.
@@ -165,7 +172,7 @@ function update(book, table, data = [], reply, bitmex) {
 
 // Delete table data from the book.
 function deletee(book, table, data = [], reply, bitmex) {
-    // Keep the liquidations table from clearing data if wanted.
+    // We only want inserts if we're keeping the data.
     if(book.opt('keep_liquidations') && table === "liquidation") return 
 
     // Loop and delete data.

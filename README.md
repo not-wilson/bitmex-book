@@ -13,6 +13,9 @@ A jesture of notice or a token of appreciation:
 - XRP: rBgnUKAEiFhCRLPoYNPPe3JUWayRjP6Ayg (destination tag: 536785858)
 
 ## Changelog
+- 2.2.1
+    - Added `keep_liquidations` along with `liquidation_size` options to keep liquidation data from deleting shortly after received.
+    - Bug Fix: Liquidations weren't accessable in the book.
 - 2.2.0
     - Updated to work with bitmex-socket ^3.0.0
     - Changed config settings, object now accepts a single object with the options `chat_size`, `trade_size` and `quote_size` to limit the size of these tables. `{ chat_size: 1000, quote_size: 1000, trade_size: 1000000 }` is the default setting.
