@@ -1,6 +1,6 @@
 {
   "name": "bitmex-book",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "Process and store raw BitMEX API socket data.",
   "main": "src/bitmex-book.js",
   "scripts": {

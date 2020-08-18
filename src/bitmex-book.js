@@ -99,6 +99,9 @@ function check_opts(book, opts = {}) {
     // Don't clear liquidations out of the liquidation table.
     if(!vars.includes('keep_liquidations')) opts.keep_liquidations = false
 
+    // Clear empty positions.
+    if(!vars.includes('keep_positions')) opts.keep_positions = true
+
     // Add the options to the object.
     book[s.opts] = opts
 }
@@ -117,8 +120,12 @@ function partial(book, table, data = [], reply, bitmex) {
 
 // Insert data into the book.
 function insert(book, table, data = [], reply, bitmex) {
+
     // Loop through all data objects.
     for(let i = 0; i < data.length; i++) {
+        // Don't add an empty position to the book.
+        if(table === "position" && data[i].currentQty <= 0 && !book.opt('keep_positions')) continue
+
         // Add socket ID to data for easier tracking.
         data[i]._sid = bitmex.id
 
@@ -164,8 +171,11 @@ function update(book, table, data = [], reply, bitmex) {
             // Remove empty orders from the book.
             if(item.leavesQty <= 0) book[s.tables][table].splice(index, 1)
 
+            // Remove closed positions from the book.
+            else if(!book.opt('keep_position') && (item.currentQty <= 0)) book[s.tables][table].splice(index, 1)
+
             // Update entry in book.
-            if(book[s.tables][table][index]) Object.keys(item).forEach(key => book[s.tables][table][index][key] = item[key])
+            else if(book[s.tables][table][index]) Object.keys(item).forEach(key => book[s.tables][table][index][key] = item[key])
         }
     }
 }

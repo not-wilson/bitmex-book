@@ -13,6 +13,8 @@ A jesture of notice or a token of appreciation:
 - XRP: rBgnUKAEiFhCRLPoYNPPe3JUWayRjP6Ayg (destination tag: 536785858)
 
 ## Changelog
+- 2.2.2
+    - Added `keep_positions` option, default `true`. BitMEX will store the last closed position for a symbol and supply it as a position. If you don't want an empty position in your book, set `keep_positions: false` in your options and only active positions will be monitored.
 - 2.2.1
     - Added `keep_liquidations` along with `liquidation_size` options to keep liquidation data from deleting shortly after received.
     - Bug Fix: Liquidations weren't accessable in the book.
