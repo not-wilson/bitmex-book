@@ -5,6 +5,17 @@ const s = { tables: Symbol('tables'), keys: Symbol('keys'), opts: Symbol('opts')
 const events = {}
 
 class BitmexBook {
+    /**
+     * @param {BitmexSocket | null} socket BitmexSocket object to listen on.
+     * @param {Object | null} opts Object containing options to use for data storage.
+     * - `chat_size` default `1000`
+     * - `trade_size`   default `1000000`
+     * - `quote_size`   default `1000`
+     * - `liquidation_size` default `1000`
+     * - `keep_liquidations` default `false`
+     * - `keep_positions` default `true`
+     * @description Create an object store for and process BitMEX data. At full with trim() book should run at about 485MB of memory.
+     */
     constructor(socket = null, opts = {}) {
         // Add default variables.
         this[s.tables]  = {}
@@ -19,10 +30,25 @@ class BitmexBook {
         if(socket) this.listen(socket)
     }
 
-    // Get the value of an option.
+    /**
+     * @param {String} o Value to get.
+     * Includes:
+     * - `chat_size` default `1000`
+     * - `trade_size`   default `1000000`
+     * - `quote_size`   default `1000`
+     * - `liquidation_size` default `1000`
+     * - `keep_liquidations` default `false`
+     * - `keep_positions` default `true`
+     * @description Get the value of any supplied or internal variable.
+     */
     opt(o) { return this[s.opts][o] || false }
 
-    // Get data from the book.
+    /**
+     * @param {Number} rows Number of rows to fetch from book. 0 for all.
+     * @param {String} table Table to fetch the rows from.
+     * @param {Function} filter `Array.filter()` applied before returning data.
+     * @description Fetch data from a table in the book.
+     */
     fetch(rows = 0, table, filter) {
         // Check table exists before attempting to manipulate it.
         if(!this[s.tables][table]) return []
@@ -32,7 +58,10 @@ class BitmexBook {
         return target.slice(!rows ? 0 : size)
     }
 
-    // Listen for book updates from a socket.
+    /**
+     * @param {IterableIterator} sockets BitmexSocket objects to listen on.
+     * @description Listen for data from additional sockets.
+     */
     listen(...sockets) {
         sockets.forEach(socket => {
             // Add trackable eventListeners to keep the value of this local.
@@ -54,7 +83,10 @@ class BitmexBook {
         })
     }
 
-    // Stop listening for events from some sockets.
+    /**
+     * @param {IterableIterator} sockets BitmexSocket objects to listen on.
+     * @description Stop listening for data from a particular socket.
+     */
     stop(...sockets) {
         // Loop supplied sockets.
         sockets.forEach(socket => {
@@ -124,7 +156,7 @@ function insert(book, table, data = [], reply, bitmex) {
     // Loop through all data objects.
     for(let i = 0; i < data.length; i++) {
         // Don't add an empty position to the book.
-        if(table === "position" && data[i].currentQty <= 0 && !book.opt('keep_positions')) continue
+        if(table === "position" && (data[i].currentQty <= 0) && !book.opt('keep_positions')) continue
 
         // Add socket ID to data for easier tracking.
         data[i]._sid = bitmex.id
